@@ -27,10 +27,17 @@ end
 
 struct BLBreIFUpd_State{T}
     XY::Matrix{T}
-
+    Vx::Matrix{T}
+    Vy::Matrix{T}
+    px::Matrix{T}
+    py::Matrix{T}
     function BLBreIFUpd_State{T}(A, X::Matrix{T}, Y::Matrix{T}) where T
         m, n, r = nmf_checksize(A, X, Y)
-        new{T}(X * Y)
+        new{T}(X * Y,
+            Matrix{T}(undef, m, r),
+            Matrix{T}(undef, r, n),
+            Matrix{T}(undef, m, r),
+            Matrix{T}(undef, r, n))
     end
 end
 
@@ -46,6 +53,12 @@ function update_xy!(upd::BLBreIFUpd{T}, s::BLBreIFUpd_State{T}, A, X:Matrix{T}, 
     mu = upd.mu
     delta = upd.delta
     XY = s.XY
+    Vx = s.Vx
+    Vy = s.Vy
+    px = s.px
+    py = s.py
 
-    # update
-    if 
+    # update x_j
+    Vx[:, j_k] = 1/rho*(norm(X[:, j_k], 2)^2 + norm(Y[j_k, :], 2)^2 + 1)^X[:, j_k] + mu*px[:, j_k] - (XY - A)*Y[j_k, :]
+    
+    px[:, j_k] = px[:, j_k] - 1/rho*((norm(x, 2)^2+norm(Y[j_k, :],2)^2+1)*x - (norm(X[:, j_k], 2)^2 + norm(Y[j_k, :], 2)^2 + 1)*X[:, j_k] + rho*(XY - A)*Y[j_k, :])
