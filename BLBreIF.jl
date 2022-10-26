@@ -59,6 +59,11 @@ function update_xy!(upd::BLBreIFUpd{T}, s::BLBreIFUpd_State{T}, A, X:Matrix{T}, 
     py = s.py
 
     # update x_j
-    Vx[:, j_k] = 1/rho*(norm(X[:, j_k], 2)^2 + norm(Y[j_k, :], 2)^2 + 1)^X[:, j_k] + mu*px[:, j_k] - (XY - A)*Y[j_k, :]
-    
-    px[:, j_k] = px[:, j_k] - 1/rho*((norm(x, 2)^2+norm(Y[j_k, :],2)^2+1)*x - (norm(X[:, j_k], 2)^2 + norm(Y[j_k, :], 2)^2 + 1)*X[:, j_k] + rho*(XY - A)*Y[j_k, :])
+    Vx[:, j_k] = 1/rho*(norm(X[:, j_k], 2)^2 + norm(Y[j_k, :], 2)^2 + 1)*X[:, j_k] + mu*px[:, j_k] - (XY - A)*Y[j_k, :]
+    v = soft_thresholding(rho*Vx, mu*rho)
+    t_0 = find_zero(norm(v, 2)^2*t^3 + t - 1, (0, 10))
+    x_1 = -t_0*v
+    px[:, j_k] = px[:, j_k] - 1/rho*((norm(x_1, 2)^2 + norm(Y[j_k, :],2)^2 + 1)*x - (norm(X[:, j_k], 2)^2 + norm(Y[j_k, :], 2)^2 + 1)*X[:, j_k] + rho*(XY - A)*Y[j_k, :])
+
+    # update y_j
+    Vy[j_k, :] = 1/rho*(norm(x_1, 2)^2 + norm(Y[j_k, :]^2 + 1)*Y[j_k, :]+ mu*py[j_k, :] - (XY - X[:, j_k]*transpose(Y[j_k, :]) + x_1*transpose(Y[j_k, :]) - A)*x_1)
