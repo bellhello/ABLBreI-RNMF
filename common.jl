@@ -5,10 +5,10 @@
 function nmf_checksize(A, X::AbstractMatrix, Y::AbstractMatrix)
 
     m = size(A, 1)
-    r = size(A, 2)
-    n = size(X, 2)
+    r = size(X, 2)
+    n = size(A, 2)
 
-    if !(size(X,1) == m && size(Y) == (r, n))
+    if !(size(X, 1) == m && size(Y) == (r, n))
         throw(DimensionMismatch("Dimensions of A, X and Y are inconsistent."))
     end
 

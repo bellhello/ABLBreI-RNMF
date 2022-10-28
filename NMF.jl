@@ -1,4 +1,4 @@
-module BBINMF
+module BLNMF
     using StatsBase
     using Base
     using Statistics
@@ -12,7 +12,7 @@ module BBINMF
     using Roots
     using SparseArrays
 
-    export nnmf
+    export blnmf
 
     include("common.jl")
     include("utils.jl")

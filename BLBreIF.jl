@@ -16,11 +16,10 @@ mutable struct BLBreIF{T}
 end
 
 function solve!(alg::BLBreIF{T}, A, X, Y) where {T}
-    nmf_skeleton!(BLBreIFUpd{T}(sqrt(eps(T)), alg::rho, alg::mu), A, X, Y, alg.maxiter, alg.verbose)
+    nmf_skeleton!(BLBreIFUpd{T}(alg.rho, alg.mu), A, X, Y, alg.maxiter, alg.verbose)
 end
 
 struct BLBreIFUpd{T} <: NMFUpdater{T}
-    delta::T
     rho::T
     mu::T
 end
@@ -44,14 +43,13 @@ end
 prepare_state(::BLBreIFUpd{T}, A, X, Y) where {T} = BLBreIFUpd_State{T}(A, X, Y)
 evaluate_objv(::BLBreIFUpd{T}, s::BLBreIFUpd_State{T}, A, X, Y) where T = convert(T, 0.5) * sqL2dist(A, s.XY)
 
-function update_xy!(upd::BLBreIFUpd{T}, s::BLBreIFUpd_State{T}, A, X:Matrix{T}, Y::Matrix{T}, j_k) where T
+function update_xy!(upd::BLBreIFUpd{T}, s::BLBreIFUpd_State{T}, A, X::Matrix{T}, Y::Matrix{T}, j_k) where T
     # fields
     m = size(A, 1)
     n = size(A, 2)
     r = size(X, 2)
     rho = upd.rho
     mu = upd.mu
-    delta = upd.delta
     XY = s.XY
     Vx = s.Vx
     Vy = s.Vy
@@ -72,3 +70,7 @@ function update_xy!(upd::BLBreIFUpd{T}, s::BLBreIFUpd_State{T}, A, X:Matrix{T}, 
     y_1 = -t_0*v
     py[j_k, :] = py[j_k, :] - 1/rho*((norm(x_1, 2)^2 + norm(y_1, 2)^2 + 1)*y_1 - (norm(x_1, 2)^2 + norm(Y[j_k, :], 2)^2 + 1)*Y[j_k, :] + rho*transpose(XY - X[:, j_k]*transpose(Y[j_k, :]) + x_1*transpose(Y[j_k, :]) - A)*x_1)
 
+    X[:, j_k] = x_1
+    Y[j_k, :] = y_1
+    mul!(XY, X, Y)
+end
