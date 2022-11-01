@@ -82,5 +82,5 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     if !verbose
         objv = evaluate_objv(updater, state, A, X, Y)
     end
-    return Result{T}(X, Y, t, converged, objv)
+    return Result{T}(X, Y, k, converged, objv)
 end

@@ -1,18 +1,22 @@
-function randinit(X, nrows::Integer, ncols::Integer, r::Integer, T::DataType)
-    W = rand(T, nrows, r)
-    H = rand(T, r, ncols)
-    for i = 1:r
-        W[:,i] = W[:,i]/norm(W[:,i], 2)
-        H[i,:] = H[i,:]/norm(H[i,:], 2)
-    end
-    WH = W*H
-    alpha = sqrt(sum(X)/sum(WH))
-    W = alpha*W 
-    H = alpha*H
-    return W, H
+function normalize!(A::AbstractMatrix{T}) where T
+    A = A./norm(A, 2)
 end
 
-function randinit(X, r::Integer) 
-    p, n = size(X)
-    randinit(X, p, n, r, eltype(X))
+function randinit(A, nrows::Integer, ncols::Integer, r::Integer, T::DataType)
+    X = rand(T, nrows, r)
+    Y = rand(T, r, ncols)
+    for i = 1:r
+        X[:,i] = X[:,i]/norm(X[:,i], 2)
+        Y[i,:] = Y[i,:]/norm(Y[i,:], 2)
+    end
+    XY = X*Y
+    alpha = sqrt(sum(A)/sum(XY))
+    X = alpha*X 
+    Y = alpha*Y
+    return X, Y
+end
+
+function randinit(A, r::Integer) 
+    m, n = size(A)
+    randinit(A, m, n, r, eltype(A))
 end
