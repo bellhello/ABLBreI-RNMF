@@ -75,7 +75,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
             preobjv = objv
             objv = evaluate_objv(updater, state, A, X, Y)
             @printf("%5d    %13.6e    %13.6e    %13.6e\n",
-                t, elapsed, objv, objv - preobjv)
+                k, elapsed, objv, objv - preobjv)
         end
     end
 
