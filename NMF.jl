@@ -19,6 +19,7 @@ module BLNMF
 
     include("initialization.jl")
 
+    include("LBreIF.jl")
     include("BLBreIF.jl")
     
 end # module

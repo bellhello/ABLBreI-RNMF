@@ -57,8 +57,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     # main loop
     converged = false
     k = 0
-    while k < maxiter + 1
-        k += 1
+    while k <= maxiter
         copyto!(preX, X)
         copyto!(preY, Y)
 
@@ -80,6 +79,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
             @printf("%5d    %13.6e    %13.6e    %13.6e    %13.6e\n",
                 k, elapsed, objv, objv - preobjv, dev)
         end
+        k += 1
     end
 
     if !verbose

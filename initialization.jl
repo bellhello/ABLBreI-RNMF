@@ -8,7 +8,7 @@ function randinit(A, nrows::Integer, ncols::Integer, r::Integer, T::DataType, z:
     XY = X*Y
     AXY = A.*XY
     X = X.*sqrt(2*sum(AXY))./norm(XY, 2)
-    Y = X'
+    Y = copy(X')
     if !z
         X = zeros(nrows, r)
         Y = zeros(r, ncols)
