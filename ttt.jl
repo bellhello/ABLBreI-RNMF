@@ -1,5 +1,7 @@
 include("NMF.jl")
 using LinearAlgebra
+using Roots
+using StatsBase
 A = rand(Float64, 200, 200)
 A = BLNMF.normalize!(A)
 X, Y = BLNMF.randinit(A, 10)
@@ -22,8 +24,7 @@ j_k = mod(k, r) + 1
 rho = 0.2
 mu = 0.01
 T = Float64
-px = zeros(T, m* r)
-py = zeros(T, r* n)
+
 XY = X*Y
 function soft_thresholding(A::AbstractArray{T}, s::Real) where T
     B = copy(A)
@@ -36,7 +37,8 @@ function soft_thresholding(A::AbstractArray{T}, s::Real) where T
 end
     x = X[:]
     y = transpose(Y)[:]
-
+px = zeros(T, m* r)
+py = zeros(T, r* n)
     # update x_j
     Vx = 1/rho*(norm(x)^2 + norm(y)^2 + 1)*x + mu*px - (kron(I(r), (X*Y - A)))*y
     v = soft_thresholding(rho*Vx, rho*mu)
@@ -57,4 +59,4 @@ end
 
     X = reshape(x_1, m, r)
     Y = copy(transpose(reshape(y_1, n, r)))
-    mul!(XY, X, Y)
+    convert(T,0.5)*sqL2dist(A, X*Y)

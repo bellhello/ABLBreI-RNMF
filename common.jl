@@ -42,14 +42,16 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     maxiter::Int, verbose::Bool, tol) where {T}
     objv = convert(T, NaN)
 
-    r = size(X, 2)
+    m, n, r = nmf_checksize(A, X, Y)
     # init
     state = prepare_state(updater, A, X, Y)
+    Px = zeros(T, m, r)
+    Py = zeros(T, r, n)
     preX = Matrix{T}(undef, size(X))
     preY = Matrix{T}(undef, size(Y))
     if verbose
         start = time()
-        objv = evaluate_objv(updater, state, A, X, Y)
+        objv = convert(T,0.5)*sqL2dist(A, X*Y)
         @printf("%-5s    %-13s    %-13s    %-13s    %-13s\n", "Iter", "Elapsed time", "objv", "objv.change", "(X & Y).change")
         @printf("%5d    %13.6e    %13.6e\n", 0, 0.0, objv)
     end
@@ -57,14 +59,17 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     # main loop
     converged = false
     k = 0
-    while k <= maxiter
+    while !converged && k <= maxiter
         copyto!(preX, X)
         copyto!(preY, Y)
 
         # update 
         j_k = mod(k, r) + 1
-        update_xy!(updater, state, A, X, Y, j_k)
-
+        v = update_xy!(updater, state, A, X, Y, Px, Py, j_k)
+        X = v[1]
+        Y = v[2]
+        Px = v[3]
+        Py = v[4]
         # determine convergence
         dev = max(maxad(preX, X), maxad(preY, Y))
         if dev < tol
@@ -75,7 +80,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
         if verbose
             elapsed = time() - start
             preobjv = objv
-            objv = evaluate_objv(updater, state, A, X, Y)
+            objv = convert(T,0.5)*sqL2dist(A, X*Y)
             @printf("%5d    %13.6e    %13.6e    %13.6e    %13.6e\n",
                 k, elapsed, objv, objv - preobjv, dev)
         end
@@ -83,7 +88,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     end
 
     if !verbose
-        objv = evaluate_objv(updater, state, A, X, Y)
+        objv = convert(T,0.5)*sqL2dist(A, X*Y)
     end
     return Result{T}(X, Y, k, converged, objv)
 end

@@ -2,8 +2,8 @@ mutable struct LBreIF{T}
     maxiter::Int            # max number of iterations
     verbose::Bool           # whether to show procedural information
     tol::T                  # change tolerance upon convergence
-    rho::T                  # step size
-    mu::T                   # L1 regularization coefficient
+    rho::Real                  # step size
+    mu::Real                   # L1 regularization coefficient
 
     function LBreIF{T}(;maxiter::Integer = 200,
                         verbose::Bool = false,
@@ -23,48 +23,40 @@ function solve!(alg::LBreIF{T}, A, X, Y) where {T}
 end
 
 struct LBreIFUpd{T} <: NMFUpdater{T}
-    rho::T
-    mu::T
+    rho::Real
+    mu::Real
 end
 
 struct LBreIFUpd_State{T}
-    XY::Matrix{T}
     Vx::Array{T}
     Vy::Array{T}
-    px::Array{T}
-    py::Array{T}
     function LBreIFUpd_State{T}(A, X::Matrix{T}, Y::Matrix{T}) where T
         m, n, r = nmf_checksize(A, X, Y)
-        new{T}(X * Y,
-            Array{T}(undef, m*r),
-            Array{T}(undef, r*n),
-            zeros(T, m*r),
-            zeros(T, r*n))
+        new{T}(Array{T}(undef, m*r), Array{T}(undef, n*r))
     end
 end
 
 prepare_state(::LBreIFUpd{T}, A, X, Y) where {T} = LBreIFUpd_State{T}(A, X, Y)
-evaluate_objv(::LBreIFUpd{T}, s::LBreIFUpd_State{T}, A, X, Y) where T = convert(T, 0.5) * sqL2dist(A, s.XY)
+# evaluate_objv(::LBreIFUpd{T}, s::LBreIFUpd_State{T}, A, X, Y) where T = convert(T, 0.5) * sqL2dist(A, s.XY)
 
 
-function update_xy!(upd::LBreIFUpd{T}, s::LBreIFUpd_State{T}, A, X::Matrix{T}, Y::Matrix{T}, j_k) where T
+function update_xy!(upd::LBreIFUpd{T}, s::LBreIFUpd_State{T}, A, X::Matrix{T}, Y::Matrix{T}, Px::Matrix{T}, Py::Matrix{T}, j_k::Integer) where T
     # fields
 
     rho = upd.rho
     mu = upd.mu
-    XY = s.XY
     Vx = s.Vx
     Vy = s.Vy
-    px = s.px
-    py = s.py
     m, n, r = nmf_checksize(A, X, Y)
     x = X[:]
     y = transpose(Y)[:]
+    px = Px[:]
+    py = transpose(Py)[:]
 
     # update x_j
     Vx = 1/rho*(norm(x)^2 + norm(y)^2 + 1)*x + mu*px - (kron(I(r), (X*Y - A)))*y
     v = soft_thresholding(rho*Vx, rho*mu)
-    f(t) = norm(v, 2)^2*t^3 + t - 1
+    f(t) = norm(v)^2*t^3 + t - 1
     t_0 = fzero(f, 0)
     x_1 = t_0*v
     px = px - 1/(rho*mu)*((norm(x_1)^2 + norm(y)^2 + 1)*x_1 - (norm(x)^2 + norm(y)^2 + 1)*x + rho*(kron(I(r), (X*Y - A)))*y)
@@ -81,5 +73,7 @@ function update_xy!(upd::LBreIFUpd{T}, s::LBreIFUpd_State{T}, A, X::Matrix{T}, Y
 
     X = reshape(x_1, m, r)
     Y = copy(transpose(reshape(y_1, n, r)))
-    mul!(XY, X, Y)
+    Px = reshape(px, m, r)
+    Py = copy(transpose(reshape(py, n, r)))
+    return X, Y, Px, Py
 end
