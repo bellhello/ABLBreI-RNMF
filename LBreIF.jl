@@ -1,25 +1,25 @@
 mutable struct LBreIF{T}
-    maxiter::Int            # max number of iterations
+    runtime::Int            
     verbose::Bool           # whether to show procedural information
     tol::T                  # change tolerance upon convergence
     rho::Real                  # step size
     mu::Real                   # L1 regularization coefficient
 
-    function LBreIF{T}(;maxiter::Integer = 200,
+    function LBreIF{T}(;runtime::Integer = 200,
                         verbose::Bool = false,
                         tol::Real=cbrt(eps(T)),
                         rho::Real = convert(T, 0.5),
                         mu::Real = convert(T,1)) where T
-        maxiter > 1 || throw(ArgumentError("maxiter must be greater than 1."))
+        runtime > 1 || throw(ArgumentError("runtime must be greater than 1."))
         tol > 0 || throw(ArgumentError("tol must be positive."))
         rho < 1 || throw(ArgumentError("rho must be smaller than 1."))
         rho > 0 || throw(ArgumentError("rho must be greater than 0."))
-        new{T}(maxiter, verbose, tol, rho, mu)
+        new{T}(runtime, verbose, tol, rho, mu)
     end
 end
 
 function solve!(alg::LBreIF{T}, A, X, Y) where {T}
-    nmf_skeleton!(LBreIFUpd{T}(alg.rho, alg.mu), A, X, Y, alg.maxiter, alg.verbose, alg.tol)
+    nmf_skeleton!(LBreIFUpd{T}(alg.rho, alg.mu), A, X, Y, alg.runtime, alg.verbose, alg.tol)
 end
 
 struct LBreIFUpd{T} <: NMFUpdater{T}

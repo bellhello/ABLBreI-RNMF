@@ -23,13 +23,13 @@ struct Result{T}
     Y::Matrix{T}
     niters::Int
     converged::Bool
-    objvalue::T
+    objvalue::Matrix{T}
 
-    function Result{T}(X::Matrix{T}, Y::Matrix{T}, niters::Int, converged::Bool, objv) where {T}
+    function Result{T}(X::Matrix{T}, Y::Matrix{T}, niters::Int, converged::Bool, objvalue) where {T}
         if size(X, 2) != size(Y, 1)
             throw(DimensionMismatch("Inner dimensions of X and Y mismatch."))
         end
-        new{T}(X, Y, niters, converged, objv)
+        new{T}(X, Y, niters, converged, objvalue)
     end
 end
 
@@ -39,9 +39,9 @@ abstract type NMFUpdater{T} end
 
 function nmf_skeleton!(updater::NMFUpdater{T},
     A, X::Matrix{T}, Y::Matrix{T},
-    maxiter::Int, verbose::Bool, tol) where {T}
+    runtime::Int, verbose::Bool, tol) where {T}
     objv = convert(T, NaN)
-
+    objvalue = zeros(Float64, 10^6, 2)
     m, n, r = nmf_checksize(A, X, Y)
     # init
     state = prepare_state(updater, A, X, Y)
@@ -49,8 +49,8 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     Py = zeros(T, r, n)
     preX = Matrix{T}(undef, size(X))
     preY = Matrix{T}(undef, size(Y))
+    
     if verbose
-        start = time()
         objv = convert(T,0.5)*sqL2dist(A, X*Y)
         @printf("%-5s    %-13s    %-13s    %-13s    %-13s\n", "Iter", "Elapsed time", "objv", "objv.change", "(X & Y).change")
         @printf("%5d    %13.6e    %13.6e\n", 0, 0.0, objv)
@@ -58,27 +58,31 @@ function nmf_skeleton!(updater::NMFUpdater{T},
 
     # main loop
     converged = false
-    k = 0
-    while !converged && k <= maxiter
+    k = 1
+    objvalue[k, 2] = convert(T,0.5)*sqL2dist(A, X*Y)
+    start = time()
+    while !converged && objvalue[k, 1] <= runtime
         copyto!(preX, X)
         copyto!(preY, Y)
 
         # update 
-        j_k = mod(k, r) + 1
+        j_k = mod(k - 1, r) + 1
         v = update_xy!(updater, state, A, X, Y, Px, Py, j_k)
+        elapsed = time() - start
+        objvalue[k + 1, 1] = objvalue[k, 1] + elapsed
         X = v[1]
         Y = v[2]
         Px = v[3]
         Py = v[4]
+        objvalue[k + 1, 2] = convert(T, 0.5)*sqL2dist(A, X*Y)
         # determine convergence
         dev = max(maxad(preX, X), maxad(preY, Y))
         if dev < tol
             converged = true
         end
-
+        
         # display info
         if verbose
-            elapsed = time() - start
             preobjv = objv
             objv = convert(T,0.5)*sqL2dist(A, X*Y)
             @printf("%5d    %13.6e    %13.6e    %13.6e    %13.6e\n",
@@ -90,5 +94,5 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     if !verbose
         objv = convert(T,0.5)*sqL2dist(A, X*Y)
     end
-    return Result{T}(X, Y, k, converged, objv)
+    return Result{T}(X, Y, k, converged, objvalue)
 end
