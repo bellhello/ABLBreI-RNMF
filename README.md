@@ -1,4 +1,4 @@
-# bregman iteration
+# BLBreIF
 
 #### 介绍
-bregman迭代正则化的julia基础程序
+分块Bregman临近梯度迭代算法
