@@ -69,7 +69,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
         j_k = mod(k - 1, r) + 1
         v = update_xy!(updater, state, A, X, Y, Px, Py, j_k)
         elapsed = time() - start
-        objvalue[k + 1, 1] = objvalue[k, 1] + elapsed
+        objvalue[k + 1, 1] = elapsed
         X = v[1]
         Y = v[2]
         Px = v[3]
