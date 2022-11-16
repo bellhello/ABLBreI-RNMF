@@ -10,14 +10,14 @@ Y₀ = copy(Y);
 r₀ = SCNMF.solve!(SCNMF.BPG{Float64}(obj=:cons,
         constrain=0.95,
         runtime=60,
-        rho=0.2), A, X₀, Y₀)
+        ρ=0.2), A, X₀, Y₀)
 
 X₁ = copy(X);
 Y₁ = copy(Y);
 r₁ = SCNMF.solve!(SCNMF.FBPG{Float64}(obj=:cons,
         constrain=0.95,
         runtime=60,
-        rho=0.2), A, X₁, Y₁)
+        ρ=0.2), A, X₁, Y₁)
 
 stop₀ = r₀.niters
 pic₀ = r₀.objvalue

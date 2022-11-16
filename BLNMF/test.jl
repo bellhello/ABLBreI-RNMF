@@ -25,8 +25,8 @@ obj₀ = pic₀[1:stop₀, 2]
 
 stop₁ = r₁.niters
 pic₁ = r₁.objvalue
-rt₁ = pic₁[1:stop1, 1]
-obj₁ = pic₁[1:stop1, 2]
+rt₁ = pic₁[1:stop₁, 1]
+obj₁ = pic₁[1:stop₁, 2]
 
 using Plots
 using GR
