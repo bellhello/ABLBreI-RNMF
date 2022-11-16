@@ -6,14 +6,14 @@ X, Y = BLNMF.randinit(A, 10)
 
 X₀ = copy(X);
 Y₀ = copy(Y);
-r₀ = BLNMF.solve!(BLNMF.LBreIF{Float64}(runtime=60,
+r₀ = BLNMF.solve!(BLNMF.LBreIF{Float64}(runtime=30,
                 verbose=false,
                 ρ=0.2,
                 μ=0.01), A, X₀, Y₀)
 
 X₁ = copy(X);
 Y₁ = copy(Y);
-r₁ = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=60,
+r₁ = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=30,
                 verbose=false,
                 ρ=0.2,
                 μ=0.01), A, X₁, Y₁)
@@ -33,4 +33,4 @@ using GR
 p₁ = Plots.plot(rt₀, obj₀, label="LBreIF")
 p₂= Plots.plot!(rt₁, obj₁, label="BLBreIF")
 Plots.plot(p₂; xlabel="time", ylabel="objv",
-        xlims=(0.0, 60.0), ylims=(0.0, 1))
+        xlims=(0.0, 30.0), ylims=(0.0, 1))

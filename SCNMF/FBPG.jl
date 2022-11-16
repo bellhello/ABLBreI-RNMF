@@ -55,20 +55,20 @@ function update_wh!(upd::FBPGUpdSTAN{T}, s::FBPGUpdSTAN_State{T}, X, W::Matrix{T
     ρ = upd.ρ
     δ = upd.δ
 
-    muk = norm(W * H - X - xⱼ * transpose(yⱼ), 2)
+    μₖ = norm(W * H - X - xⱼ * transpose(yⱼ), 2)
 
     #compute vx
-    vx = 1 / ρ * (norm(xⱼ, 2)^2 + norm(yⱼ, 2)^2 + muk) * xⱼ - (W * H - X) * yⱼ
+    vx = 1 / ρ * (norm(xⱼ, 2)^2 + norm(yⱼ, 2)^2 + μₖ) * xⱼ - (W * H - X) * yⱼ
 
     #compute vy
-    vy = 1 / ρ * (norm(xⱼ, 2)^2 + norm(yⱼ, 2)^2 + muk) * yⱼ - transpose(W * H - X) * xⱼ
+    vy = 1 / ρ * (norm(xⱼ, 2)^2 + norm(yⱼ, 2)^2 + μₖ) * yⱼ - transpose(W * H - X) * xⱼ
 
     #project vx and vy
     projectnn!(vx)
     projectnn!(vy)
 
     #compute theta
-    m(theta) = (norm(vx, 2)^2 + norm(vy, 2)^2) * theta^3 + muk * theta - ρ
+    m(theta) = (norm(vx, 2)^2 + norm(vy, 2)^2) * theta^3 + μₖ * theta - ρ
     th = fzero(m, δ, 10^4)
 
     #compute x^(k+1) and y^(k+1)
@@ -114,13 +114,13 @@ function update_wh!(upd::FBPGUpdCONS{T}, s::FBPGUpdCONS_State{T}, X, W::Matrix{T
     δ = upd.δ
     constrain = upd.constrain
 
-    muk = norm(W * H - X - xⱼ * transpose(yⱼ), 2)
+    μₖ = norm(W * H - X - xⱼ * transpose(yⱼ), 2)
 
     #compute vx
-    vx = 1 / ρ * (norm(xⱼ, 2)^2 + norm(yⱼ, 2)^2 + muk) * xⱼ - (W * H - X) * yⱼ
+    vx = 1 / ρ * (norm(xⱼ, 2)^2 + norm(yⱼ, 2)^2 + μₖ) * xⱼ - (W * H - X) * yⱼ
 
     #compute vy
-    vy = 1 / ρ * (norm(xⱼ, 2)^2 + norm(yⱼ, 2)^2 + muk) * yⱼ - transpose(W * H - X) * xⱼ
+    vy = 1 / ρ * (norm(xⱼ, 2)^2 + norm(yⱼ, 2)^2 + μₖ) * yⱼ - transpose(W * H - X) * xⱼ
 
 
     #project vx and vy
@@ -132,7 +132,7 @@ function update_wh!(upd::FBPGUpdCONS{T}, s::FBPGUpdCONS_State{T}, X, W::Matrix{T
     hard_thresholding(vy, constrain)
 
     #compute theta
-    m(theta) = (norm(vx, 2)^2 + norm(vy, 2)^2) * theta^3 + muk * theta - ρ
+    m(theta) = (norm(vx, 2)^2 + norm(vy, 2)^2) * theta^3 + μₖ * theta - ρ
     th = fzero(m, δ, 10^4)
 
     #compute x^(k+1) and y^(k+1)
