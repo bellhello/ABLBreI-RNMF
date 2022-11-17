@@ -1,17 +1,19 @@
 function normalize!(A::AbstractMatrix{T}) where {T}
-    A = A ./ norm(A, 2)
+    A = A ./ norm(A)
 end
 
 function randinit(A, nrows::Integer, ncols::Integer, r::Integer, T::DataType, z::Bool)
     X = rand(T, nrows, r)
-    Y = transpose(X)
+    Y = rand(T, r, ncols)
+    X = X./norm(X)
+    Y = Y./norm(Y)
     XY = X * Y
     AXY = A .* XY
     X = X .* sqrt(2 * sum(AXY)) ./ norm(XY, 2)
-    Y = copy(X')
+    Y = Y .* sqrt(2 * sum(AXY)) ./ norm(XY, 2)
     if !z
-        X = zeros(nrows, r)
-        Y = zeros(r, ncols)
+        X = zeros(T, nrows, r)
+        Y = zeros(T, r, ncols)
     end
     return X, Y
 end
