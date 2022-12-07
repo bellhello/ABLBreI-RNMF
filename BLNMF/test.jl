@@ -31,6 +31,6 @@ obj₁ = pic₁[1:stop₁, 2]
 using Plots
 using GR
 p₁ = Plots.plot(rt₀, obj₀, label="LBreIF")
-p₂= Plots.plot!(rt₁, obj₁, label="BLBreIF")
+p₂ = Plots.plot!(rt₁, obj₁, label="BLBreIF")
 Plots.plot(p₂; xlabel="time", ylabel="objv",
         xlims=(0.0, 30.0), ylims=(0.0, 1))

@@ -1,7 +1,7 @@
-include("BLNMF/BLNMF.jl")
-import .BLNMF
-include("SCNMF/SCNMF.jl")
-import .SCNMF
+# include("BLNMF/BLNMF.jl")
+# include("SCNMF/SCNMF.jl")
+using .BLNMF
+using .SCNMF
 
 using SparseArrays
 A = sprand(Float64, 500, 500, 0.8)
@@ -9,7 +9,7 @@ A = SCNMF.normalize!(A)
 
 ρ₀ = 0.2
 μ₀ = 0.1
-rtime = 30
+rtime = 15
 
 X, Y = SCNMF.randinit(A, 10, true)
 
@@ -22,7 +22,7 @@ r₀ = SCNMF.solve!(SCNMF.BPG{Float64}(obj=:cons,
 
 X₁ = copy(X);
 Y₁ = copy(Y);
-r₁ = SCNMF.solve!(SCNMF.FBPG{Float64}(obj=:cons,
+r₁ = SCNMF.solve!(SCNMF.BBPG{Float64}(obj=:cons,
                 constrain=1 - ρ₀,
                 runtime=rtime,
                 ρ=ρ₀), A, X₁, Y₁)
@@ -74,28 +74,28 @@ CairoMakie.activate!()
 
 # gr()
 # p₀ = Plots.plot(rt₀, obj₀, label="BPG")
-# p₁ = Plots.plot!(rt₁, obj₁, label="FBPG")
+# p₁ = Plots.plot!(rt₁, obj₁, label="BBPG")
 # p₂ = Plots.plot!(rt₂, obj₂, label="LBreIF")
 # p₃ = Plots.plot!(rt₃, obj₃, label="BLBreIF")
 # Plots.plot(p₃; xlabel="time", ylabel=L"\frac{1}{2}\Vert A-XY\Vert^2_2",
 #     xlims=(0, rtime), ylims=(0.0, 1))
 
 function speed()
-        lines(rt₀, obj₀; color="#4063D8", label="BPG", linewidth=2, linestyle=:dash,
+        lines(rt₀, obj₀; color="#4063D8", label="BPG", linewidth=3, linestyle=:dot,
                 figure=(; figure_padding=5, resolution=(1200, 800), font="sans",
                         backgroundcolor=:white, fontsize=32),
                 axis=(; xlabel="time", ylabel=L"\frac{1}{2}\Vert A-XY\Vert^2_2", yscale=log10, title="Objective Value",
                         xgridstyle=:dash, ygridstyle=:dash))
-        lines!(rt₁, obj₁; color="#389826", linewidth=2, linestyle=:dash,
-                label="FBPG")
+        lines!(rt₁, obj₁; color="#389826", linewidth=3, linestyle=:dot,
+                label="BBPG")
         lines!(rt₂, obj₂; color="#9558B2", linewidth=2, linestyle=nothing,
                 label="LBreI")
         lines!(rt₃, obj₃; color="#CB3C33", linewidth=2, linestyle=nothing,
                 label="BLBreI")
-        limits!(-0.1, rtime, 0.1, 1.0)
+        limits!(-0.1, rtime - 0.01, 0.1, 0.6)
         axislegend("Algorithms"; merge=true)
         current_figure()
 end
 
-with_theme(speed, theme = theme_ggplot2())
+with_theme(speed, theme=theme_dark())
 save("plot/exam.png", speed())

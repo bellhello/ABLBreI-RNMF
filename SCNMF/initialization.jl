@@ -5,8 +5,8 @@ end
 function randinit(A, nrows::Integer, ncols::Integer, r::Integer, T::DataType, z::Bool)
     X = rand(T, nrows, r)
     Y = rand(T, r, ncols)
-    X = X./norm(X)
-    Y = Y./norm(Y)
+    X = X ./ norm(X)
+    Y = Y ./ norm(Y)
     XY = X * Y
     AXY = A .* XY
     X = X .* sqrt(2 * sum(AXY)) ./ norm(XY, 2)

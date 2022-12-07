@@ -19,6 +19,6 @@ include("utils.jl")
 include("initialization.jl")
 
 include("BPG.jl")
-include("FBPG.jl")
+include("BBPG.jl")
 
 end # module

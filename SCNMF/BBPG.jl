@@ -1,10 +1,10 @@
-mutable struct FBPG{T}
+mutable struct BBPG{T}
     obj::Symbol
     constrain::Real
     runtime::Int
     ρ::Real
 
-    function FBPG{T}(; obj::Symbol=:stan,
+    function BBPG{T}(; obj::Symbol=:stan,
         constrain::Real=1,
         runtime::Integer=30,
         ρ::Real=0.1) where {T}
@@ -16,33 +16,33 @@ mutable struct FBPG{T}
     end
 end
 
-function solve!(alg::FBPG{T}, X, W, H) where {T}
+function solve!(alg::BBPG{T}, X, W, H) where {T}
     if alg.obj == :stan
-        nmf_skeleton!(FBPGUpdSTAN(sqrt(eps(T)), alg.ρ), X, W, H, alg.runtime)
+        nmf_skeleton!(BBPGUpdSTAN(sqrt(eps(T)), alg.ρ), X, W, H, alg.runtime)
     else
-        nmf_skeleton!(FBPGUpdCONS(sqrt(eps(T)), alg.constrain, alg.ρ), X, W, H, alg.runtime)
+        nmf_skeleton!(BBPGUpdCONS(sqrt(eps(T)), alg.constrain, alg.ρ), X, W, H, alg.runtime)
     end
 end
 
-struct FBPGUpdSTAN{T} <: NMFUpdater{T}
+struct BBPGUpdSTAN{T} <: NMFUpdater{T}
     δ::T
     ρ::Real
 end
 
-struct FBPGUpdSTAN_State{T}
+struct BBPGUpdSTAN_State{T}
     vx::Array{T}
     vy::Array{T}
 
-    function FBPGUpdSTAN_State{T}(X, W::Matrix{T}, H::Matrix{T}) where {T}
+    function BBPGUpdSTAN_State{T}(X, W::Matrix{T}, H::Matrix{T}) where {T}
         p, n, r = nmf_checksize(X, W, H)
         new{T}(Array{T}(undef, p), Array{T}(undef, n))
     end
 end
 
-prepare_state(::FBPGUpdSTAN{T}, X, W, H) where {T} = FBPGUpdSTAN_State{T}(X, W, H)
-# evaluate_objv(::FBPGUpdSTAN{T}, s::FBPGUpdSTAN_State{T}, X, W, H) where T = sqrt(sqL2dist(X, s.WH))
+prepare_state(::BBPGUpdSTAN{T}, X, W, H) where {T} = BBPGUpdSTAN_State{T}(X, W, H)
+# evaluate_objv(::BBPGUpdSTAN{T}, s::BBPGUpdSTAN_State{T}, X, W, H) where T = sqrt(sqL2dist(X, s.WH))
 
-function update_wh!(upd::FBPGUpdSTAN{T}, s::FBPGUpdSTAN_State{T}, X, W::Matrix{T}, H::Matrix{T}, j::Integer) where {T}
+function update_wh!(upd::BBPGUpdSTAN{T}, s::BBPGUpdSTAN_State{T}, X, W::Matrix{T}, H::Matrix{T}, j::Integer) where {T}
 
     #p = size(X, 1)
     #n = size(X, 2)
@@ -81,26 +81,26 @@ function update_wh!(upd::FBPGUpdSTAN{T}, s::FBPGUpdSTAN_State{T}, X, W::Matrix{T
     return W, H
 end
 
-struct FBPGUpdCONS{T} <: NMFUpdater{T}
+struct BBPGUpdCONS{T} <: NMFUpdater{T}
     δ::T
     constrain::Real
     ρ::Real
 end
 
-struct FBPGUpdCONS_State{T}
+struct BBPGUpdCONS_State{T}
     vx::Array{T}
     vy::Array{T}
 
-    function FBPGUpdCONS_State{T}(X, W::Matrix{T}, H::Matrix{T}) where {T}
+    function BBPGUpdCONS_State{T}(X, W::Matrix{T}, H::Matrix{T}) where {T}
         p, n, r = nmf_checksize(X, W, H)
         new{T}(Array{T}(undef, p), Array{T}(undef, n))
     end
 end
 
-prepare_state(::FBPGUpdCONS{T}, X, W, H) where {T} = FBPGUpdCONS_State{T}(X, W, H)
-# evaluate_objv(::FBPGUpdCONS{T}, s::FBPGUpdCONS_State{T}, X, W, H) where T = sqrt(sqL2dist(X, s.WH))
+prepare_state(::BBPGUpdCONS{T}, X, W, H) where {T} = BBPGUpdCONS_State{T}(X, W, H)
+# evaluate_objv(::BBPGUpdCONS{T}, s::BBPGUpdCONS_State{T}, X, W, H) where T = sqrt(sqL2dist(X, s.WH))
 
-function update_wh!(upd::FBPGUpdCONS{T}, s::FBPGUpdCONS_State{T}, X, W::Matrix{T}, H::Matrix{T}, j::Integer) where {T}
+function update_wh!(upd::BBPGUpdCONS{T}, s::BBPGUpdCONS_State{T}, X, W::Matrix{T}, H::Matrix{T}, j::Integer) where {T}
 
     #p = size(X, 1)
     #n = size(X, 2)

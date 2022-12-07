@@ -55,7 +55,7 @@ function update_xy!(upd::LBreIFUpd{T}, s::LBreIFUpd_State{T}, A, X::Matrix{T}, Y
     # update x_j
     Vx = 1 / ρ * (norm(x)^2 + norm(y)^2 + 1) * x + μ * px - (kron(I(r), (X * Y - A))) * y
     v = soft_thresholding(ρ * Vx, ρ * μ)
-    f(t) = norm(v)^2 * t^3 + t - 1
+    f(t) = norm(v)^2 * t^3 + (norm(y)^2 + 1) * t - 1
     t_0 = fzero(f, 0)
     x_1 = t_0 * v
     px = px - 1 / (ρ * μ) * ((norm(x_1)^2 + norm(y)^2 + 1) * x_1 - (norm(x)^2 + norm(y)^2 + 1) * x + ρ * (kron(I(r), (X * Y - A))) * y)
@@ -65,7 +65,7 @@ function update_xy!(upd::LBreIFUpd{T}, s::LBreIFUpd_State{T}, A, X::Matrix{T}, Y
     # update y_j
     Vy = 1 / ρ * (norm(x_1)^2 + norm(y)^2 + 1) * y + μ * py - transpose(kron(I(r), (XY1 - A))) * x_1
     v = soft_thresholding(ρ * Vy, ρ * μ)
-    g(t) = norm(v)^2 * t^3 + t - 1
+    g(t) = norm(v)^2 * t^3 + (norm(x_1)^2 + 1) * t - 1
     t_0 = fzero(g, 0)
     y_1 = t_0 * v
     py = py - 1 / (ρ * μ) * ((norm(x_1)^2 + norm(y_1)^2 + 1) * y_1 - (norm(x_1)^2 + norm(y)^2 + 1) * y + ρ * transpose(kron(I(r), (XY1 - A))) * x_1)
