@@ -1,5 +1,5 @@
-# include("BLNMF/BLNMF.jl")
-# include("SCNMF/SCNMF.jl")
+include("BLNMF/BLNMF.jl")
+include("SCNMF/SCNMF.jl")
 using .BLNMF
 using .SCNMF
 
@@ -84,7 +84,7 @@ function speed()
         lines(rt₀, obj₀; color="#4063D8", label="BPG", linewidth=3, linestyle=:dot,
                 figure=(; figure_padding=5, resolution=(1200, 800), font="sans",
                         backgroundcolor=:white, fontsize=32),
-                axis=(; xlabel="time", ylabel=L"\frac{1}{2}\Vert A-XY\Vert^2_2", yscale=log10, title="Objective Value",
+                axis=(; xlabel="time", ylabel=L"\frac{1}{2}\Vert A-XY\Vert^2_F", yscale=log10,
                         xgridstyle=:dash, ygridstyle=:dash))
         lines!(rt₁, obj₁; color="#389826", linewidth=3, linestyle=:dot,
                 label="BBPG")

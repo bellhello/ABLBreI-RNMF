@@ -18,14 +18,15 @@ for i = 1:40
     end
 end
 
-include("BLNMF/BLNMF.jl")
+include("SCNMF/SCNMF.jl")
 
 A = BLNMF.normalize!(B)
 X, Y = BLNMF.randinit(A, R^2)
-r = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=300,
-        verbose=true,
-        ρ=0.8,
-        μ=0.01), A, X, Y)
+
+r = SCNMF.solve!(SCNMF.BBPG{Float64}(obj=:cons,
+        constrain=0.8,
+        runtime=300,
+        ρ=0.2), A, X, Y)
 
 X = norm(B) .* X
 #import NMF
