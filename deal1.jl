@@ -24,9 +24,9 @@ A = BLNMF.normalize!(B)
 X, Y = BLNMF.randinit(A, R^2)
 
 r = SCNMF.solve!(SCNMF.BBPG{Float64}(obj=:cons,
-        constrain=0.8,
-        runtime=300,
-        ρ=0.2), A, X, Y)
+        constrain=0.4,
+        runtime=1200,
+        ρ=0.8), A, X, Y)
 
 X = norm(B) .* X
 #import NMF
