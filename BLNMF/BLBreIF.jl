@@ -3,27 +3,30 @@ mutable struct BLBreIF{T}
     verbose::Bool           # whether to show procedural information
     τ::T                  # change tolerance upon convergence
     ρ::T                  # step size
-    μ::T                   # L1 regularization coefficient
+    μ₁::T                 # L1 regularization coefficient for X
+    μ₂::T 
 
     function BLBreIF{T}(; runtime::Integer=200,
         verbose::Bool=false,
         τ::Real=∛eps(T),
         ρ::Real=convert(T, 0.5),
-        μ::Real=convert(T, 1)) where {T}
+        μ₁::Real=convert(T, 0.01),
+        μ₂::Real=convert(T, 0.01)) where {T}
         runtime ≥ 1 || throw(ArgumentError("runtime must be greater than 0."))
         τ > 0 || throw(ArgumentError("τ must be positive."))
         0 < ρ < 1 || throw(ArgumentError("ρ must be smaller than 1 and greater than 0."))
-        new{T}(runtime, verbose, τ, ρ, μ)
+        new{T}(runtime, verbose, τ, ρ, μ₁, μ₂)
     end
 end
 
 function solve!(alg::BLBreIF{T}, A, X, Y) where {T}
-    nmf_skeleton!(BLBreIFUpd{T}(alg.ρ, alg.μ), A, X, Y, alg.runtime, alg.verbose, alg.τ)
+    nmf_skeleton!(BLBreIFUpd{T}(alg.ρ, alg.μ₁, alg.μ₂), A, X, Y, alg.runtime, alg.verbose, alg.τ)
 end
 
 struct BLBreIFUpd{T} <: NMFUpdater{T}
     ρ::T
-    μ::T
+    μ₁::T
+    μ₂::T
 end
 
 struct BLBreIFUpd_State{T}
@@ -42,25 +45,26 @@ function update_xy!(upd::BLBreIFUpd{T}, s::BLBreIFUpd_State{T}, A, X::Matrix{T},
     # fields
 
     ρ = upd.ρ
-    μ = upd.μ
+    μ₁ = upd.μ₁
+    μ₂ = upd.μ₂
     Vx = s.Vx
     Vy = s.Vy
 
     # update x_j
-    Vx = 1 / ρ * (norm(X[:, jₖ])^2 + norm(Y[jₖ, :])^2 + 1) * X[:, jₖ] + μ * Px[:, jₖ] - (X * Y - A) * Y[jₖ, :]
-    v = soft_thresholding(ρ * Vx, ρ * μ)
+    Vx = 1 / ρ * (norm(X[:, jₖ])^2 + norm(Y[jₖ, :])^2 + 1) * X[:, jₖ] + μ₁ * Px[:, jₖ] - (X * Y - A) * Y[jₖ, :]
+    v = soft_thresholding(ρ * Vx, ρ * μ₁)
     f(t) = norm(v, 2)^2 * t^3 + (norm(Y[jₖ, :])^2 + 1) * t - 1
     t_0 = fzero(f, 0)
     x_1 = t_0 * v
-    Px[:, jₖ] = Px[:, jₖ] - 1 / (ρ * μ) * ((norm(x_1)^2 + norm(Y[jₖ, :])^2 + 1) * x_1 - (norm(X[:, jₖ])^2 + norm(Y[jₖ, :])^2 + 1) * X[:, jₖ] + ρ * (X * Y - A) * Y[jₖ, :])
+    Px[:, jₖ] = Px[:, jₖ] - 1 / (ρ * μ₁) * ((norm(x_1)^2 + norm(Y[jₖ, :])^2 + 1) * x_1 - (norm(X[:, jₖ])^2 + norm(Y[jₖ, :])^2 + 1) * X[:, jₖ] + ρ * (X * Y - A) * Y[jₖ, :])
 
     # update y_j
-    Vy = 1 / ρ * (norm(x_1)^2 + norm(Y[jₖ, :])^2 + 1) * Y[jₖ, :] + μ * Py[jₖ, :] - ρ * transpose(X * Y - X[:, jₖ] * transpose(Y[jₖ, :]) + x_1 * transpose(Y[jₖ, :]) - A) * x_1
-    v = soft_thresholding(ρ * Vy, ρ * μ)
+    Vy = 1 / ρ * (norm(x_1)^2 + norm(Y[jₖ, :])^2 + 1) * Y[jₖ, :] + μ₂ * Py[jₖ, :] - ρ * transpose(X * Y - X[:, jₖ] * transpose(Y[jₖ, :]) + x_1 * transpose(Y[jₖ, :]) - A) * x_1
+    v = soft_thresholding(ρ * Vy, ρ * μ₂)
     g(t) = norm(v)^2 * t^3 + (norm(x_1)^2 + 1)t - 1
     t_0 = fzero(g, 0)
     y_1 = t_0 * v
-    Py[jₖ, :] = Py[jₖ, :] - 1 / (ρ * μ) * ((norm(x_1)^2 + norm(y_1)^2 + 1) * y_1 - (norm(x_1)^2 + norm(Y[jₖ, :])^2 + 1) * Y[jₖ, :] + transpose(X * Y - X[:, jₖ] * transpose(Y[jₖ, :]) + x_1 * transpose(Y[jₖ, :]) - A) * x_1)
+    Py[jₖ, :] = Py[jₖ, :] - 1 / (ρ * μ₂) * ((norm(x_1)^2 + norm(y_1)^2 + 1) * y_1 - (norm(x_1)^2 + norm(Y[jₖ, :])^2 + 1) * Y[jₖ, :] + transpose(X * Y - X[:, jₖ] * transpose(Y[jₖ, :]) + x_1 * transpose(Y[jₖ, :]) - A) * x_1)
 
     X[:, jₖ] = x_1
     Y[jₖ, :] = y_1

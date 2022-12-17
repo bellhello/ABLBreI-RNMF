@@ -9,14 +9,16 @@ Y₀ = copy(Y);
 r₀ = BLNMF.solve!(BLNMF.LBreIF{Float64}(runtime=30,
                 verbose=false,
                 ρ=0.2,
-                μ=0.01), A, X₀, Y₀)
+                μ₁=0.01,
+                μ₂=0.01), A, X₀, Y₀)
 
 X₁ = copy(X);
 Y₁ = copy(Y);
 r₁ = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=30,
                 verbose=false,
                 ρ=0.2,
-                μ=0.01), A, X₁, Y₁)
+                μ₁=0.01,
+                μ₂=0.01), A, X₁, Y₁)
 
 stop₀ = r₀.niters
 pic₀ = r₀.objvalue
