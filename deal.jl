@@ -23,10 +23,11 @@ include("BLNMF/BLNMF.jl")
 
 A = BLNMF.normalize!(B)
 X, Y = BLNMF.randinit(A, R^2)
-r = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=60,
+r = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=3000,
         verbose=true,
         ρ=0.8,
-        μ=0.01), A, X, Y)
+        μ₁=0.000001,
+        μ₂=0.03), A, X, Y)
 
 X = norm(B) .* X
 #import NMF
