@@ -4,7 +4,7 @@ using Images
 ul = "ORL_Faces/s1/1.pgm"
 ig = load(ul)
 
-a = 80
+a = 60
 b = 60
 R = 5
 
@@ -14,7 +14,7 @@ for i = 1:40
         local url = "ORL_Faces/s" * "$i/" * "$j" * ".pgm"
         local img = load(url)
         local q = float64.(img)
-        q = q[17:96,17:76][:]
+        q = q[7:66,17:76][:]
         global B[:, (i-1)*10+j] = q
     end
 end
@@ -23,11 +23,11 @@ include("BLNMF/BLNMF.jl")
 
 A = BLNMF.normalize!(B)
 X, Y = BLNMF.randinit(A, R^2)
-r = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=3000,
+r = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=1200,
         verbose=true,
         ρ=0.8,
         μ₁=0.000001,
-        μ₂=0.03), A, X, Y)
+        μ₂=0.05), A, X, Y)
 
 X = norm(B) .* X
 #import NMF
@@ -39,7 +39,7 @@ ViewH = Array{Gray{Float64},2}(undef, R, R)
 
 #W = r.W*sqrt(sqrt(s))
 
-for k = 0:R^2-1
+for k = 0 : R^2-1
     local w = X[:, k+1]
     # local h = Y[k+1, 2]
     local m = reshape(w, a, b)
