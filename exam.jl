@@ -1,5 +1,5 @@
-include("BLNMF/BLNMF.jl")
-import .BLNMF
+include("BLBreIF/BLBreIF.jl")
+import .BLBreIF
 include("SCNMF/SCNMF.jl")
 import .SCNMF
 using Images
@@ -45,14 +45,14 @@ r₁ = SCNMF.solve!(SCNMF.FBPG{Float64}(obj=:cons,
 
 X₂ = copy(X);
 Y₂ = copy(Y);
-r₂ = BLNMF.solve!(BLNMF.LBreIF{Float64}(runtime=rtime,
+r₂ = BLBreIF.solve!(BLBreIF.ALBreI{Float64}(runtime=rtime,
         verbose=false,
         ρ=ρ₀,
         μ=0.01), A, X₂, Y₂)
 
 X₃ = copy(X);
 Y₃ = copy(Y);
-r₃ = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=rtime,
+r₃ = BLBreIF.solve!(BLBreIF.ABLBreI{Float64}(runtime=rtime,
         verbose=true,
         ρ=ρ₀,
         μ=0.01), A, X₃, Y₃)
@@ -83,6 +83,6 @@ gr()
 p₀ = Plots.plot(rt₀, obj₀, label="BPG")
 p₁ = Plots.plot!(rt₁, obj₁, label="FBPG")
 p₂ = Plots.plot!(rt₂, obj₂, label="LBreIF")
-p₃ = Plots.plot!(rt₃, obj₃, label="BLBreIF")
+p₃ = Plots.plot!(rt₃, obj₃, label="ABLBreI")
 Plots.plot(p₃; xlabel="time", ylabel=L"\frac{1}{2}\Vert A-XY\Vert^2_2",
     xlims=(0, rtime), ylims=(0.0, 1))

@@ -1,4 +1,4 @@
-module BLNMF
+module BLBreIF
 using StatsBase
 using Base
 using Statistics
@@ -17,7 +17,7 @@ include("utils.jl")
 
 include("initialization.jl")
 
-include("LBreIF.jl")
-include("BLBreIF.jl")
+include("ALBreI.jl")
+include("ABLBreI.jl")
 
 end # module

@@ -19,11 +19,11 @@ for i = 1:40
     end
 end
 
-include("BLNMF/BLNMF.jl")
+include("BLBreIF/BLBreIF.jl")
 
-A = BLNMF.normalize!(B)
-X, Y = BLNMF.randinit(A, R^2)
-r = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=1200,
+A = BLBreIF.normalize!(B)
+X, Y = BLBreIF.randinit(A, R^2)
+r = BLBreIF.solve!(BLBreIF.ABLBreI{Float64}(runtime=1200,
         verbose=true,
         ρ=0.8,
         μ₁=0.000001,

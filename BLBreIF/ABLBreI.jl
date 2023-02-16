@@ -1,4 +1,4 @@
-mutable struct BLBreIF{T}
+mutable struct ABLBreI{T}
     runtime::Int
     verbose::Bool           # whether to show procedural information
     τ::T                  # change tolerance upon convergence
@@ -6,7 +6,7 @@ mutable struct BLBreIF{T}
     μ₁::T                 # L1 regularization coefficient for X
     μ₂::T 
 
-    function BLBreIF{T}(; runtime::Integer=200,
+    function ABLBreI{T}(; runtime::Integer=200,
         verbose::Bool=false,
         τ::Real=∛eps(T),
         ρ::Real=convert(T, 0.5),
@@ -19,29 +19,29 @@ mutable struct BLBreIF{T}
     end
 end
 
-function solve!(alg::BLBreIF{T}, A, X, Y) where {T}
-    nmf_skeleton!(BLBreIFUpd{T}(alg.ρ, alg.μ₁, alg.μ₂), A, X, Y, alg.runtime, alg.verbose, alg.τ)
+function solve!(alg::ABLBreI{T}, A, X, Y) where {T}
+    nmf_skeleton!(ABLBreIUpd{T}(alg.ρ, alg.μ₁, alg.μ₂), A, X, Y, alg.runtime, alg.verbose, alg.τ)
 end
 
-struct BLBreIFUpd{T} <: NMFUpdater{T}
+struct ABLBreIUpd{T} <: NMFUpdater{T}
     ρ::T
     μ₁::T
     μ₂::T
 end
 
-struct BLBreIFUpd_State{T}
+struct ABLBreIUpd_State{T}
     Vx::Array{T}
     Vy::Array{T}
-    function BLBreIFUpd_State{T}(A, X::Matrix{T}, Y::Matrix{T}) where {T}
+    function ABLBreIUpd_State{T}(A, X::Matrix{T}, Y::Matrix{T}) where {T}
         m, n, r = nmf_checksize(A, X, Y)
         new{T}(Array{T}(undef, m * r), Array{T}(undef, n * r))
     end
 end
 
-prepare_state(::BLBreIFUpd{T}, A, X, Y) where {T} = BLBreIFUpd_State{T}(A, X, Y)
-# evaluate_objv(::BLBreIFUpd{T}, s::BLBreIFUpd_State{T}, A, X, Y) where T = convert(T, 0.5) * sqL2dist(A, s.XY)
+prepare_state(::ABLBreIUpd{T}, A, X, Y) where {T} = ABLBreIUpd_State{T}(A, X, Y)
+# evaluate_objv(::ABLBreIUpd{T}, s::ABLBreIUpd_State{T}, A, X, Y) where T = convert(T, 0.5) * sqL2dist(A, s.XY)
 
-function update_xy!(upd::BLBreIFUpd{T}, s::BLBreIFUpd_State{T}, A, X::Matrix{T}, Y::Matrix{T}, Px::Matrix{T}, Py::Matrix{T}, jₖ) where {T}
+function update_xy!(upd::ABLBreIUpd{T}, s::ABLBreIUpd_State{T}, A, X::Matrix{T}, Y::Matrix{T}, Px::Matrix{T}, Py::Matrix{T}, jₖ) where {T}
     # fields
 
     ρ = upd.ρ

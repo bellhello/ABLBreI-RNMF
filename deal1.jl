@@ -20,8 +20,8 @@ end
 
 include("SCNMF/SCNMF.jl")
 
-A = BLNMF.normalize!(B)
-X, Y = BLNMF.randinit(A, R^2)
+A = BLBreIF.normalize!(B)
+X, Y = BLBreIF.randinit(A, R^2)
 
 r = SCNMF.solve!(SCNMF.BBPG{Float64}(obj=:cons,
         constrain=0.4,

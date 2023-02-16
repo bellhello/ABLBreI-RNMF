@@ -1,6 +1,6 @@
-include("BLNMF/BLNMF.jl")
+include("BLBreIF/BLBreIF.jl")
 include("SCNMF/SCNMF.jl")
-using .BLNMF
+using .BLBreIF
 using .SCNMF
 
 using SparseArrays
@@ -30,17 +30,19 @@ r₁ = SCNMF.solve!(SCNMF.BBPG{Float64}(obj=:cons,
 
 X₂ = copy(X);
 Y₂ = copy(Y);
-r₂ = BLNMF.solve!(BLNMF.LBreIF{Float64}(runtime=rtime,
+r₂ = BLBreIF.solve!(BLBreIF.ALBreI{Float64}(runtime=rtime,
                 verbose=false,
                 ρ=ρ₀,
-                μ=μ₀), A, X₂, Y₂)
+                μ₁=μ₀,
+                μ₂=μ₀), A, X₂, Y₂)
 
 X₃ = copy(X);
 Y₃ = copy(Y);
-r₃ = BLNMF.solve!(BLNMF.BLBreIF{Float64}(runtime=rtime,
+r₃ = BLBreIF.solve!(BLBreIF.ABLBreI{Float64}(runtime=rtime,
                 verbose=false,
                 ρ=ρ₀,
-                μ=μ₀), A, X₃, Y₃)
+                μ₁=μ₀,
+                μ₂=μ₀), A, X₃, Y₃)
 
 stop₀ = r₀.niters
 pic₀ = r₀.objvalue
@@ -76,7 +78,7 @@ CairoMakie.activate!()
 # p₀ = Plots.plot(rt₀, obj₀, label="BPG")
 # p₁ = Plots.plot!(rt₁, obj₁, label="BBPG")
 # p₂ = Plots.plot!(rt₂, obj₂, label="LBreIF")
-# p₃ = Plots.plot!(rt₃, obj₃, label="BLBreIF")
+# p₃ = Plots.plot!(rt₃, obj₃, label="ABLBreI")
 # Plots.plot(p₃; xlabel="time", ylabel=L"\frac{1}{2}\Vert A-XY\Vert^2_2",
 #     xlims=(0, rtime), ylims=(0.0, 1))
 
