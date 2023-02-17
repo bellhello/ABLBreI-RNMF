@@ -35,4 +35,4 @@ using GR
 p₁ = Plots.plot(rt₀, obj₀, label="ALBreI")
 p₂ = Plots.plot!(rt₁, obj₁, label="ABLBreI")
 Plots.plot(p₂; xlabel="time", ylabel="objv",
-        xlims=(0.0, 50), ylims=(0.0, 0.2))
+        xlims=(0.0, 50), ylims=(0.1, 0.2))

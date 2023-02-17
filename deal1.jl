@@ -24,7 +24,7 @@ A = BLBreIF.normalize!(B)
 X, Y = BLBreIF.randinit(A, R^2)
 
 r = SCNMF.solve!(SCNMF.BBPG{Float64}(obj=:cons,
-        constrain=0.4,
+        constraint=0.4,
         runtime=1200,
         ρ=0.8), A, X, Y)
 

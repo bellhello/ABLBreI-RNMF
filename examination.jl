@@ -4,29 +4,28 @@ using .BLBreIF
 using .SCNMF
 
 using SparseArrays
-A = sprand(Float64, 500, 500, 0.8)
+A = sprand(Float64, 500, 500, 0.95)
 A = SCNMF.normalize!(A)
 
-ρ₀ = 0.2
-μ₀ = 0.1
-rtime = 15
+ρ₀ = 0.8
+μ₀ = 0.01
+rtime = 120
 
 X, Y = SCNMF.randinit(A, 10, true)
 
 X₀ = copy(X);
 Y₀ = copy(Y);
 r₀ = SCNMF.solve!(SCNMF.BPG{Float64}(obj=:cons,
-                constrain=1 - ρ₀,
+                constraint=0.95,
                 runtime=rtime,
                 ρ=ρ₀), A, X₀, Y₀)
 
 X₁ = copy(X);
 Y₁ = copy(Y);
 r₁ = SCNMF.solve!(SCNMF.BBPG{Float64}(obj=:cons,
-                constrain=1 - ρ₀,
+                constraint=0.95,
                 runtime=rtime,
                 ρ=ρ₀), A, X₁, Y₁)
-
 
 X₂ = copy(X);
 Y₂ = copy(Y);
@@ -83,18 +82,19 @@ CairoMakie.activate!()
 #     xlims=(0, rtime), ylims=(0.0, 1))
 
 function speed()
-        lines(rt₀, obj₀; color="#4063D8", label="BPG", linewidth=3, linestyle=:dot,
-                figure=(; figure_padding=5, resolution=(1200, 800), font="sans",
+        lines(rt₀, sqrt.(2*obj₀); color="#4063D8", label="BPG", linewidth=3, linestyle=:dashdot,
+                figure=(; figure_padding=50, resolution=(1200, 800), font="sans",
                         backgroundcolor=:white, fontsize=32),
-                axis=(; xlabel="time", ylabel=L"\frac{1}{2}\Vert A-XY\Vert^2_F", yscale=log10,
+                axis=(; xlabel="Time(sec)", ylabel=L"\Vert A-XY^T\Vert_F",
+                        #yscale=log10,
                         xgridstyle=:dash, ygridstyle=:dash))
-        lines!(rt₁, obj₁; color="#389826", linewidth=3, linestyle=:dot,
+        lines!(rt₁, sqrt.(2*obj₁); color="#389826", linewidth=3, linestyle=:dashdot,
                 label="BBPG")
-        lines!(rt₂, obj₂; color="#9558B2", linewidth=2, linestyle=nothing,
-                label="LBreI")
-        lines!(rt₃, obj₃; color="#CB3C33", linewidth=2, linestyle=nothing,
-                label="BLBreI")
-        limits!(-0.1, rtime - 0.01, 0.1, 0.6)
+        lines!(rt₂, sqrt.(2*obj₂); color="#FFC633", linewidth=2, linestyle=:solid,
+                label="ALBreI")
+        lines!(rt₃, sqrt.(2*obj₃); color="#CB3C33", linewidth=2, linestyle=:solid,
+                label="ABLBreI")
+        limits!(0, 120, 0.6, 0.7)
         axislegend("Algorithms"; merge=true)
         current_figure()
 end

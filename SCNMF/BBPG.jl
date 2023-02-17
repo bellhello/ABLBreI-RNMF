@@ -1,18 +1,18 @@
 mutable struct BBPG{T}
     obj::Symbol
-    constrain::Real
+    constraint::Real
     runtime::Int
     ρ::Real
 
     function BBPG{T}(; obj::Symbol=:stan,
-        constrain::Real=1,
+        constraint::Real=1,
         runtime::Integer=30,
         ρ::Real=0.1) where {T}
         obj == :stan || obj == :cons || throw(ArgumentError("Invalid value for obj."))
-        constrain > 0 && constrain <= 1 || throw(ArgumentError("constrain must be greater than 0"))
+        constraint > 0 && constraint <= 1 || throw(ArgumentError("constraint must be greater than 0"))
         runtime ≥ 1 || throw(ArgumentError("runtime must be greater than 0."))
         ρ > 0 && ρ < 1 || throw(ArgumentError("ρ must be greater than 0 and smaller than 1."))
-        new{T}(obj, constrain, runtime, ρ)
+        new{T}(obj, constraint, runtime, ρ)
     end
 end
 
@@ -20,7 +20,7 @@ function solve!(alg::BBPG{T}, X, W, H) where {T}
     if alg.obj == :stan
         nmf_skeleton!(BBPGUpdSTAN(sqrt(eps(T)), alg.ρ), X, W, H, alg.runtime)
     else
-        nmf_skeleton!(BBPGUpdCONS(sqrt(eps(T)), alg.constrain, alg.ρ), X, W, H, alg.runtime)
+        nmf_skeleton!(BBPGUpdCONS(sqrt(eps(T)), alg.constraint, alg.ρ), X, W, H, alg.runtime)
     end
 end
 
@@ -83,7 +83,7 @@ end
 
 struct BBPGUpdCONS{T} <: NMFUpdater{T}
     δ::T
-    constrain::Real
+    constraint::Real
     ρ::Real
 end
 
@@ -112,7 +112,7 @@ function update_wh!(upd::BBPGUpdCONS{T}, s::BBPGUpdCONS_State{T}, X, W::Matrix{T
     vy = s.vy
     ρ = upd.ρ
     δ = upd.δ
-    constrain = upd.constrain
+    constraint = upd.constraint
 
     μₖ = norm(W * H - X - xⱼ * transpose(yⱼ), 2)
 
@@ -128,8 +128,8 @@ function update_wh!(upd::BBPGUpdCONS{T}, s::BBPGUpdCONS_State{T}, X, W::Matrix{T
     projectnn!(vy)
 
     #hard_thresholding
-    hard_thresholding(vx, constrain)
-    hard_thresholding(vy, constrain)
+    hard_thresholding(vx, constraint)
+    hard_thresholding(vy, constraint)
 
     #compute theta
     m(theta) = (norm(vx, 2)^2 + norm(vy, 2)^2) * theta^3 + μₖ * theta - ρ

@@ -8,14 +8,14 @@ X, Y = SCNMF.randinit(A, 10, true)
 X₀ = copy(X);
 Y₀ = copy(Y);
 r₀ = SCNMF.solve!(SCNMF.BPG{Float64}(obj=:cons,
-                constrain=0.95,
+                constraint=0.95,
                 runtime=60,
                 ρ=0.2), A, X₀, Y₀)
 
 X₁ = copy(X);
 Y₁ = copy(Y);
 r₁ = SCNMF.solve!(SCNMF.FBPG{Float64}(obj=:cons,
-                constrain=0.95,
+                constraint=0.95,
                 runtime=60,
                 ρ=0.2), A, X₁, Y₁)
 

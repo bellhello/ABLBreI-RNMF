@@ -1,18 +1,18 @@
 mutable struct BPG{T}
     obj::Symbol
-    constrain::Real
+    constraint::Real
     runtime::Int
     ρ::Real
 
     function BPG{T}(; obj::Symbol=:stan,
-        constrain::Real=1,
+        constraint::Real=1,
         runtime::Integer=30,
         ρ::Real=0.1) where {T}
         obj == :stan || obj == :cons || throw(ArgumentError("Invalid value for obj."))
-        constrain > 0 && constrain <= 1 || throw(ArgumentError("constrain must be greater than 0"))
+        constraint > 0 && constraint <= 1 || throw(ArgumentError("constraint must be greater than 0"))
         runtime ≥ 1 || throw(ArgumentError("runtime must be greater than 0."))
         ρ > 0 && ρ < 1 || throw(ArgumentError("ρ must be greater than 0 and smaller than 1."))
-        new{T}(obj, constrain, runtime, ρ)
+        new{T}(obj, constraint, runtime, ρ)
     end
 end
 
@@ -20,7 +20,7 @@ function solve!(alg::BPG{T}, X, W, H) where {T}
     if alg.obj == :stan
         nmf_skeleton!(BPGUpdSTAN(√eps(T), alg.ρ), X, W, H, alg.runtime)
     else
-        nmf_skeleton!(BPGUpdCONS(√eps(T), alg.constrain, alg.ρ), X, W, H, alg.runtime)
+        nmf_skeleton!(BPGUpdCONS(√eps(T), alg.constraint, alg.ρ), X, W, H, alg.runtime)
     end
 end
 
@@ -79,7 +79,7 @@ end
 
 struct BPGUpdCONS{T} <: NMFUpdater{T}
     δ::T
-    constrain::Real
+    constraint::Real
     ρ::Real
 end
 
@@ -108,7 +108,7 @@ function update_wh!(upd::BPGUpdCONS{T}, s::BPGUpdCONS_State{T}, X, W::Matrix{T},
     vy = s.vy
     ρ = upd.ρ
     δ = upd.δ
-    constrain = upd.constrain
+    constraint = upd.constraint
 
     #compute vx
     vx = 1 / ρ * (norm(x)^2 + norm(y)^2 + 1) * x - (kron(I(r), (W * H - X))) * y
@@ -121,8 +121,8 @@ function update_wh!(upd::BPGUpdCONS{T}, s::BPGUpdCONS_State{T}, X, W::Matrix{T},
     projectnn!(vy)
 
     #hard_thresholding
-    hard_thresholding(vx, constrain)
-    hard_thresholding(vy, constrain)
+    hard_thresholding(vx, constraint)
+    hard_thresholding(vy, constraint)
 
     #compute theta
     m(theta) = (norm(vx)^2 + norm(vy)^2) * theta^3 + theta - ρ

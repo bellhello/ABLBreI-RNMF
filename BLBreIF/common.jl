@@ -45,8 +45,8 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     m, n, r = nmf_checksize(A, X, Y)
     # init
     state = prepare_state(updater, A, X, Y)
-    Px = zeros(T, m, r)
-    Py = zeros(T, r, n)
+    Px = ones(T, m, r)
+    Py = ones(T, r, n)
     preX = Matrix{T}(undef, size(X))
     preY = Matrix{T}(undef, size(Y))
 
