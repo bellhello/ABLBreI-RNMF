@@ -37,7 +37,7 @@ r₀ = SCNMF.solve!(SCNMF.BPG{Float64}(obj=:cons,
 
 X₁ = copy(X);
 Y₁ = copy(Y);
-r₁ = SCNMF.solve!(SCNMF.FBPG{Float64}(obj=:cons,
+r₁ = SCNMF.solve!(SCNMF.BBPG{Float64}(obj=:cons,
         constraint=0.95,
         runtime=rtime,
         ρ=ρ₀), A, X₁, Y₁)
@@ -48,14 +48,16 @@ Y₂ = copy(Y);
 r₂ = BLBreIF.solve!(BLBreIF.ALBreI{Float64}(runtime=rtime,
         verbose=false,
         ρ=ρ₀,
-        μ=0.005), A, X₂, Y₂)
+        μ₁=0.005,
+        μ₂=0.005), A, X₂, Y₂)
 
 X₃ = copy(X);
 Y₃ = copy(Y);
 r₃ = BLBreIF.solve!(BLBreIF.ABLBreI{Float64}(runtime=rtime,
-        verbose=true,
+        verbose=false,
         ρ=ρ₀,
-        μ=0.005), A, X₃, Y₃)
+        μ₁=0.005,
+        μ₂=0.005), A, X₃, Y₃)
 
 stop₀ = r₀.niters
 pic₀ = r₀.objvalue
