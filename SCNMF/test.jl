@@ -1,23 +1,23 @@
 include("SCNMF.jl")
 import .SCNMF
 using SparseArrays
-A = sprand(Float64, 200, 200, 0.2)
+A = sprand(Float64, 200, 200, 0.2) # 200x200 sparse matrix with 40% nonzero entries
 A = SCNMF.normalize!(A)
 
-X, Y = SCNMF.randinit(A, 10, 0.2)
+X, Y = SCNMF.randinit(A, 10, 0.2) # 10 is the rank
 X₀ = copy(X);
 Y₀ = copy(Y);
 r₀ = SCNMF.solve!(SCNMF.BPG{Float64}(obj=:cons,
-                constraint=0.2,
-                runtime=60,
-                ρ=0.8), A, X₀, Y₀)
+                constraint=0.8,
+                runtime=15,
+                ρ=0.2), A, X₀, Y₀)
 
 X₁ = copy(X);
 Y₁ = copy(Y);
 r₁ = SCNMF.solve!(SCNMF.BBPG{Float64}(obj=:cons,
-                constraint=0.2,
-                runtime=60,
-                ρ=0.8), A, X₁, Y₁)
+                constraint=0.8,
+                runtime=15,
+                ρ=0.2), A, X₁, Y₁)
 
 stop₀ = r₀.niters
 pic₀ = r₀.objvalue

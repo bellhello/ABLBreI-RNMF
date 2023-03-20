@@ -19,10 +19,21 @@ for i = 1:40
     end
 end
 
+# 计算矩阵B中零元素的个数
+s = 0
+for i = 1 : size(B, 1)
+    for j = 1 : size(B, 2)
+        if B[i, j] == 0
+            s += 1
+        end
+    end
+end
+
+
 include("ABLBreIF/BLBreIF.jl")
 
 A = BLBreIF.normalize!(B)
-X, Y = BLBreIF.randinit(A, R^2)
+X, Y = BLBreIF.randinit(A, R^2, 0.8)
 r = BLBreIF.solve!(BLBreIF.ABLBreI{Float64}(runtime=600,
         verbose=true,
         ρ=0.6,

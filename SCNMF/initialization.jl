@@ -1,8 +1,8 @@
-function normalize!(A::AbstractMatrix{T}) where {T}
+function normalize!(A::AbstractMatrix{T}) where {T} # Normalize each column of A
     A = A ./ norm(A)
 end
 
-function randinit(A, nrows::Integer, ncols::Integer, r::Integer, T::DataType, z::Float64)
+function randinit(A, nrows::Integer, ncols::Integer, r::Integer, T::DataType, z::Float64) #
     X = rand(T, nrows, r)
     Y = rand(T, r, ncols)
 

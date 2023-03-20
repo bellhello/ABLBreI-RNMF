@@ -74,6 +74,7 @@ function update_xy!(upd::ALBreIUpd{T}, s::ALBreIUpd_State{T}, A, X::Matrix{T}, Y
     y_1 = t_0 * v
     py = py - 1 / (ρ * μ₂) * ((norm(x_1)^2 + norm(y_1)^2 + 1) * y_1 - (norm(x_1)^2 + norm(y)^2 + 1) * y + ρ * transpose(kron(I(r), (XY1 - A))) * x_1)
 
+    # update X, Y, Px, Py
     X = reshape(x_1, m, r)
     Y = copy(transpose(reshape(y_1, n, r)))
     Px = reshape(px, m, r)

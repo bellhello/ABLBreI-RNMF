@@ -1,4 +1,4 @@
-include("BLBreIF/BLBreIF.jl")
+include("ABLBreIF/BLBreIF.jl")
 import .BLBreIF
 include("SCNMF/SCNMF.jl")
 import .SCNMF
@@ -48,16 +48,16 @@ Y₂ = copy(Y);
 r₂ = BLBreIF.solve!(BLBreIF.ALBreI{Float64}(runtime=rtime,
         verbose=false,
         ρ=ρ₀,
-        μ₁=0.005,
-        μ₂=0.005), A, X₂, Y₂)
+        μ₁=0.001,
+        μ₂=0.001), A, X₂, Y₂)
 
 X₃ = copy(X);
 Y₃ = copy(Y);
 r₃ = BLBreIF.solve!(BLBreIF.ABLBreI{Float64}(runtime=rtime,
         verbose=false,
         ρ=ρ₀,
-        μ₁=0.005,
-        μ₂=0.005), A, X₃, Y₃)
+        μ₁=0.001,
+        μ₂=0.001), A, X₃, Y₃)
 
 stop₀ = r₀.niters
 pic₀ = r₀.objvalue

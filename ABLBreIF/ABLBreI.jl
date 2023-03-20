@@ -41,7 +41,7 @@ end
 prepare_state(::ABLBreIUpd{T}, A, X, Y) where {T} = ABLBreIUpd_State{T}(A, X, Y)
 # evaluate_objv(::ABLBreIUpd{T}, s::ABLBreIUpd_State{T}, A, X, Y) where T = convert(T, 0.5) * sqL2dist(A, s.XY)
 
-function update_xy!(upd::ABLBreIUpd{T}, s::ABLBreIUpd_State{T}, A, X::Matrix{T}, Y::Matrix{T}, Px::Matrix{T}, Py::Matrix{T}, jₖ) where {T}
+function update_xy!(upd::ABLBreIUpd{T}, s::ABLBreIUpd_State{T}, A, X::Matrix{T}, Y::Matrix{T}, Px::Matrix{T}, Py::Matrix{T}, jₖ) where {T} # jₖ is the index of the j-th column of X and Y
     # fields
 
     ρ = upd.ρ
@@ -65,7 +65,8 @@ function update_xy!(upd::ABLBreIUpd{T}, s::ABLBreIUpd_State{T}, A, X::Matrix{T},
     t_0 = fzero(g, 0)
     y_1 = t_0 * v
     Py[jₖ, :] = Py[jₖ, :] - 1 / (ρ * μ₂) * ((norm(x_1)^2 + norm(y_1)^2 + 1) * y_1 - (norm(x_1)^2 + norm(Y[jₖ, :])^2 + 1) * Y[jₖ, :] + transpose(X * Y - X[:, jₖ] * transpose(Y[jₖ, :]) + x_1 * transpose(Y[jₖ, :]) - A) * x_1)
-
+    
+    # update X and Y
     X[:, jₖ] = x_1
     Y[jₖ, :] = y_1
     return X, Y, Px, Py

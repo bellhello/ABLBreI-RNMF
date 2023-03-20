@@ -2,7 +2,7 @@ include("BLBreIF.jl")
 import .BLBreIF
 A = rand(Float64, 200, 200)
 A = BLBreIF.normalize!(A)
-X, Y = BLBreIF.randinit(A, 10)
+X, Y = BLBreIF.randinit(A, 10, 0.8)
 
 X₀ = copy(X);
 Y₀ = copy(Y);
