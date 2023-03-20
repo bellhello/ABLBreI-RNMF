@@ -44,7 +44,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     r = size(W, 2)
     t = 1
     objv = zeros(Float64, 10^6, 2)
-    objv[t, 2] = convert(T, 0.5) * sqL2dist(X, W * H)
+    objv[t, 2] = sqL2dist(X, W * H)
     start = time()
     while objv[t, 1] ≤ runtime
         # update
@@ -54,7 +54,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
         objv[t+1, 1] = time() - start
         W = v[1]
         H = v[2]
-        objv[t+1, 2] = convert(T, 0.5) * sqL2dist(X, W * H)
+        objv[t+1, 2] = sqL2dist(X, W * H)
         t += 1
     end
 

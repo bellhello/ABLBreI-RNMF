@@ -2,7 +2,7 @@ function normalize!(A::AbstractMatrix{T}) where {T}
     A = A ./ norm(A)
 end
 
-function randinit(A, nrows::Integer, ncols::Integer, r::Integer, T::DataType, z::Bool)
+function randinit(A, nrows::Integer, ncols::Integer, r::Integer, T::DataType, z::Float64)
     X = rand(T, nrows, r)
     Y = rand(T, r, ncols)
 
@@ -21,16 +21,15 @@ function randinit(A, nrows::Integer, ncols::Integer, r::Integer, T::DataType, z:
     X = X .* sqrt(sum(AXY)) ./ norm(XY, 2)
     Y = Y .* sqrt(sum(AXY)) ./ norm(XY, 2)
 
-    if !z
-        X .= 0
-        Y .= 0
-    end
+    #Zero out some entries of X and Y
+    X = X .* (rand(nrows, r) .> z)
+    Y = Y .* (rand(r, ncols) .> z)
     
     return X, Y
 end
 
 
-function randinit(A, r::Integer, z::Bool=true)
+function randinit(A, r::Integer, z::Float64)
     m, n = size(A)
     randinit(A, m, n, r, eltype(A), z)
 end

@@ -59,7 +59,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     # main loop
     converged = false
     k = 1
-    objvalue[k, 2] = convert(T, 0.5) * sqL2dist(A, X * Y)
+    objvalue[k, 2] = sqL2dist(A, X * Y)
     start = time()
     while objvalue[k, 1] ≤ runtime
         copyto!(preX, X)
@@ -74,7 +74,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
         Y = v[2]
         Px = v[3]
         Py = v[4]
-        objvalue[k+1, 2] = convert(T, 0.5) * sqL2dist(A, X * Y)
+        objvalue[k+1, 2] = sqL2dist(A, X * Y)
         # determine convergence
         dev = max(maxad(preX, X), maxad(preY, Y))
         if dev < τ
@@ -84,7 +84,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
         # display info
         if verbose
             preobjv = objv
-            objv = convert(T, 0.5) * sqL2dist(A, X * Y)
+            objv = sqL2dist(A, X * Y)
             @printf("%5d    %13.6e    %13.6e    %13.6e    %13.6e\n",
                 k, elapsed, objv, objv - preobjv, dev)
         end
@@ -92,7 +92,7 @@ function nmf_skeleton!(updater::NMFUpdater{T},
     end
 
     if !verbose
-        objv = convert(T, 0.5) * sqL2dist(A, X * Y)
+        objv = sqL2dist(A, X * Y)
     end
     return Result{T}(X, Y, k, converged, objvalue)
 end

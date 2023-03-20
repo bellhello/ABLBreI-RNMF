@@ -6,19 +6,19 @@ X, Y = BLBreIF.randinit(A, 10)
 
 X₀ = copy(X);
 Y₀ = copy(Y);
-r₀ = BLBreIF.solve!(BLBreIF.ALBreI{Float64}(runtime=50,
+r₀ = BLBreIF.solve!(BLBreIF.ALBreI{Float64}(runtime=30,
                 verbose=false,
                 ρ=0.8,
-                μ₁=0.005,
-                μ₂=0.005), A, X₀, Y₀)
+                μ₁=0.05,
+                μ₂=0.05), A, X₀, Y₀)
 
 X₁ = copy(X);
 Y₁ = copy(Y);
-r₁ = BLBreIF.solve!(BLBreIF.ABLBreI{Float64}(runtime=50,
+r₁ = BLBreIF.solve!(BLBreIF.ABLBreI{Float64}(runtime=30,
                 verbose=false,
                 ρ=0.8,
-                μ₁=0.005,
-                μ₂=0.005), A, X₁, Y₁)
+                μ₁=0.05,
+                μ₂=0.05), A, X₁, Y₁)
 
 stop₀ = r₀.niters
 pic₀ = r₀.objvalue
@@ -32,7 +32,9 @@ obj₁ = pic₁[1:stop₁, 2]
 
 using Plots
 using GR
+using LaTeXStrings
+
 p₁ = Plots.plot(rt₀, obj₀, label="ALBreI")
 p₂ = Plots.plot!(rt₁, obj₁, label="ABLBreI")
-Plots.plot(p₂; xlabel="time", ylabel="objv",
-        xlims=(0.0, 50), ylims=(0.1, 0.2))
+Plots.plot(p₂; xlabel="Time(sec)", ylabel=L"\Vert A-XY\Vert_F",
+        xlims=(-0.1, 50), ylims=(0.2, 0.4))

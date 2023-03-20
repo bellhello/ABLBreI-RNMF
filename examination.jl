@@ -1,4 +1,4 @@
-include("BLBreIF/BLBreIF.jl")
+include("ABLBreIF/BLBreIF.jl")
 include("SCNMF/SCNMF.jl")
 using .BLBreIF
 using .SCNMF
@@ -7,8 +7,8 @@ using SparseArrays
 A = sprand(Float64, 200, 200, 0.8)
 A = SCNMF.normalize!(A)
 
-ρ₀ = 0.9
-μ₀ = 0.005
+ρ₀ = 0.8
+μ₀ = 0.05
 rtime = 120
 
 X, Y = SCNMF.randinit(A, 10, true)
@@ -94,7 +94,7 @@ function speed()
                 label="ALBreI")
         lines!(rt₃, sqrt.(2*obj₃); color="#CB3C33", linewidth=2, linestyle=:solid,
                 label="ABLBreI")
-        limits!(0, 120, 0.55, 0.7)
+        limits!(0, 120, 0.8, 1.0)
         axislegend("Algorithms"; merge=true)
         current_figure()
 end

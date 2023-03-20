@@ -14,20 +14,20 @@ for i = 1:40
         local url = "ORL_Faces/s" * "$i/" * "$j" * ".pgm"
         local img = load(url)
         local q = float64.(img)
-        q = q[7:66,17:76][:]
+        q = q[46:105,17:76][:]
         global B[:, (i-1)*10+j] = q
     end
 end
 
-include("BLBreIF/BLBreIF.jl")
+include("ABLBreIF/BLBreIF.jl")
 
 A = BLBreIF.normalize!(B)
 X, Y = BLBreIF.randinit(A, R^2)
-r = BLBreIF.solve!(BLBreIF.ABLBreI{Float64}(runtime=1200,
+r = BLBreIF.solve!(BLBreIF.ABLBreI{Float64}(runtime=600,
         verbose=true,
-        ρ=0.8,
-        μ₁=0.000001,
-        μ₂=0.05), A, X, Y)
+        ρ=0.6,
+        μ₁=0.2,
+        μ₂=0.2), A, X, Y)
 
 X = norm(B) .* X
 #import NMF
