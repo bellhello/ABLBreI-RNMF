@@ -26,7 +26,7 @@ A = SCNMF.normalize!(B)
 ρ₀ = 0.8
 rtime = 60
 
-X, Y = SCNMF.randinit(A, R^2, true)
+X, Y = SCNMF.randinit(A, R^2, 0.8)
 
 X₀ = copy(X);
 Y₀ = copy(Y);
