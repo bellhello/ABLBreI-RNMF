@@ -55,6 +55,7 @@ function update_xy!(upd::ABLBreIUpd{T}, s::ABLBreIUpd_State{T}, A, X::Matrix{T},
     v = soft_thresholding(ρ * Vx, ρ * μ₁)
     f(t) = norm(v, 2)^2 * t^3 + (norm(Y[jₖ, :])^2 + 1) * t - 1
     t_0 = fzero(f, 0)
+    projectnn!(v)
     x_1 = t_0 * v
     Px[:, jₖ] = Px[:, jₖ] - 1 / (ρ * μ₁) * ((norm(x_1)^2 + norm(Y[jₖ, :])^2 + 1) * x_1 - (norm(X[:, jₖ])^2 + norm(Y[jₖ, :])^2 + 1) * X[:, jₖ] + ρ * (X * Y - A) * Y[jₖ, :])
 
@@ -63,6 +64,7 @@ function update_xy!(upd::ABLBreIUpd{T}, s::ABLBreIUpd_State{T}, A, X::Matrix{T},
     v = soft_thresholding(ρ * Vy, ρ * μ₂)
     g(t) = norm(v)^2 * t^3 + (norm(x_1)^2 + 1)t - 1
     t_0 = fzero(g, 0)
+    projectnn!(v)
     y_1 = t_0 * v
     Py[jₖ, :] = Py[jₖ, :] - 1 / (ρ * μ₂) * ((norm(x_1)^2 + norm(y_1)^2 + 1) * y_1 - (norm(x_1)^2 + norm(Y[jₖ, :])^2 + 1) * Y[jₖ, :] + transpose(X * Y - X[:, jₖ] * transpose(Y[jₖ, :]) + x_1 * transpose(Y[jₖ, :]) - A) * x_1)
     

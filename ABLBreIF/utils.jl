@@ -7,3 +7,12 @@ function soft_thresholding(A::AbstractArray{T}, s::Real) where {T}
     end
     return B
 end
+
+function projectnn!(A::AbstractArray{T}) where {T}
+    # project back all entries to non-negative domain
+    @inbounds for i = 1:length(A)
+        if A[i] < zero(T)
+            A[i] = zero(T)
+        end
+    end
+end

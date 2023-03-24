@@ -61,6 +61,7 @@ function update_xy!(upd::ALBreIUpd{T}, s::ALBreIUpd_State{T}, A, X::Matrix{T}, Y
     v = soft_thresholding(ρ * Vx, ρ * μ₁)
     f(t) = norm(v)^2 * t^3 + (norm(y)^2 + 1) * t - 1
     t_0 = fzero(f, 0)
+    projectnn!(v)
     x_1 = t_0 * v
     px = px - 1 / (ρ * μ₁) * ((norm(x_1)^2 + norm(y)^2 + 1) * x_1 - (norm(x)^2 + norm(y)^2 + 1) * x + ρ * (kron(I(r), (X * Y - A))) * y)
 
@@ -71,6 +72,7 @@ function update_xy!(upd::ALBreIUpd{T}, s::ALBreIUpd_State{T}, A, X::Matrix{T}, Y
     v = soft_thresholding(ρ * Vy, ρ * μ₂)
     g(t) = norm(v)^2 * t^3 + (norm(x_1)^2 + 1) * t - 1
     t_0 = fzero(g, 0)
+    projectnn!(v)
     y_1 = t_0 * v
     py = py - 1 / (ρ * μ₂) * ((norm(x_1)^2 + norm(y_1)^2 + 1) * y_1 - (norm(x_1)^2 + norm(y)^2 + 1) * y + ρ * transpose(kron(I(r), (XY1 - A))) * x_1)
 
