@@ -5,26 +5,24 @@ end
 function randinit(A, nrows::Integer, ncols::Integer, r::Integer, T::DataType, z::Float64) #
     X = rand(T, nrows, r)
     Y = rand(T, r, ncols)
-
-    #Normalize each column of X and each row of Y
-    for i in 1:length(X[1, :])
+    
+    # Zero out some entries of X and Y
+    X = X .* (rand(nrows, r) .> z)
+    Y = Y .* (rand(r, ncols) .> z)
+    
+    # Normalize each column of X and each row of Y
+    for i in 1 : r
         X[:, i] = X[:, i]/norm(X[:, i])
-    end
-    for j in 1:length(Y[:, 1])
-        Y[j, :] = Y[j, :]/norm(Y[j, :])
+        Y[i, :] = Y[i, :]/norm(Y[i, :])
     end
 
     XY = X * Y
     AXY = A .* XY
 
-    #Normalize X and Y
-    X = X .* sqrt(sum(AXY)) ./ norm(XY, 2)
-    Y = Y .* sqrt(sum(AXY)) ./ norm(XY, 2)
+    # Normalize X and Y
+    X = X .* sqrt(norm(AXY)) ./ (sqrt(2) * norm(XY))
+    Y = Y .* sqrt(norm(AXY)) ./ (sqrt(2) * norm(XY))
 
-    #Zero out some entries of X and Y
-    X = X .* (rand(nrows, r) .> z)
-    Y = Y .* (rand(r, ncols) .> z)
-    
     return X, Y
 end
 

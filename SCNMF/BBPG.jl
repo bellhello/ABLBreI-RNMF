@@ -112,7 +112,7 @@ function update_wh!(upd::BBPGUpdCONS{T}, s::BBPGUpdCONS_State{T}, X, W::Matrix{T
     vy = s.vy
     ρ = upd.ρ
     δ = upd.δ
-    constraint = upd.constraint
+    constraint = 1 - upd.constraint
 
     μₖ = norm(W * H - X - xⱼ * transpose(yⱼ), 2)
 
